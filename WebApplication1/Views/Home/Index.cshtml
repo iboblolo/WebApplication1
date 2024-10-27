@@ -1,0 +1,35 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using WebApplication1.DbModels
+@using WebApplication1.ViewModels;
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+@Model ProductsViewModel;
+@{
+    ViewData["Title"] = "Home Page";
+    
+}
+
+<div class="text-center">
+    <h1 class="display-4">Магазин КомпКо</h1>
+    @if (SignInManager.IsSignedIn(User))
+    {
+        <p>Добро пожаловать в магазин компьютерных комплектующих КомпКо @User.Identity?.Name!</p>
+    }
+    else
+    {
+        <p>Добро пожаловать в магазин компьютерных комплектующих КомпКо</p>
+    }
+    @foreach(Product prod in Model.Products)
+    {
+        <div class="container" style="display: flex; border: solid black">
+            <div>
+                <img style=" border-right: 3px solid;" src="@prod.Image" alt="Alternate Text"
+                     width=200px height=200px />
+            </div>
+            <div>
+                <p align="left" style="">Name: @prod.ProductName Price: @prod.Price</p>
+                <p align="justify" style=""> @prod.Description</p>
+            </div>
+        </div>
+    }
+</div>
