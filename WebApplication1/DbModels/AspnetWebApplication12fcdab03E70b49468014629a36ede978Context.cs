@@ -1,20 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace WebApplication1.DbModels;
 
-public partial class AspnetWebApplicationContext : IdentityDbContext
+public partial class AspnetWebApplication12fcdab03E70b49468014629a36ede978Context : DbContext
 {
-    public AspnetWebApplicationContext()
+    public AspnetWebApplication12fcdab03E70b49468014629a36ede978Context()
     {
     }
 
-    public AspnetWebApplicationContext(DbContextOptions<AspnetWebApplicationContext> options)
+    public AspnetWebApplication12fcdab03E70b49468014629a36ede978Context(DbContextOptions<AspnetWebApplication12fcdab03E70b49468014629a36ede978Context> options)
         : base(options)
     {
     }
+
+    public virtual DbSet<Addresses> Addresses { get; set; }
 
     public virtual DbSet<AspNetRole> AspNetRoles { get; set; }
 
@@ -28,7 +29,17 @@ public partial class AspnetWebApplicationContext : IdentityDbContext
 
     public virtual DbSet<AspNetUserToken> AspNetUserTokens { get; set; }
 
+    public virtual DbSet<Cart> Carts { get; set; }
+
+    public virtual DbSet<CartToOrder> CartToOrders { get; set; }
+
+    public virtual DbSet<Order> Orders { get; set; }
+
     public virtual DbSet<Product> Products { get; set; }
+
+    public virtual DbSet<WaysToPay> WaysToPays { get; set; }
+
+    public virtual DbSet<Wishlist> Wishlists { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
@@ -36,6 +47,16 @@ public partial class AspnetWebApplicationContext : IdentityDbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<Addresses>(entity =>
+        {
+            entity.Property(e => e.Address)
+                .HasMaxLength(100)
+                .HasColumnName("Address");
+            entity.Property(e => e.UserId).HasMaxLength(450);
+
+           
+        });
+
         modelBuilder.Entity<AspNetRole>(entity =>
         {
             entity.HasIndex(e => e.NormalizedName, "RoleNameIndex")
@@ -108,13 +129,88 @@ public partial class AspnetWebApplicationContext : IdentityDbContext
             entity.HasOne(d => d.User).WithMany(p => p.AspNetUserTokens).HasForeignKey(d => d.UserId);
         });
 
+        modelBuilder.Entity<Cart>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_Cart");
+
+            entity.Property(e => e.Id).HasColumnName("ID");
+            entity.Property(e => e.ProductId).HasColumnName("ProductID");
+            entity.Property(e => e.UserId)
+                .HasMaxLength(450)
+                .HasColumnName("UserID");
+
+            entity.HasOne(d => d.Product).WithMany(p => p.Carts)
+                .HasForeignKey(d => d.ProductId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Cart_Products");
+
+            entity.HasOne(d => d.User).WithMany(p => p.Carts)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Cart_Cart");
+        });
+
+        modelBuilder.Entity<CartToOrder>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_CartToOrder");
+
+            entity.Property(e => e.Id).HasColumnName("ID");
+
+            entity.HasOne(d => d.Cart).WithMany(p => p.CartToOrders)
+                .HasForeignKey(d => d.CartId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_CartToOrder_Carts");
+
+            entity.HasOne(d => d.Order).WithMany(p => p.CartToOrders)
+                .HasForeignKey(d => d.OrderId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_CartToOrder_CartToOrder");
+        });
+
+        modelBuilder.Entity<Order>(entity =>
+        {
+            entity.Property(e => e.Id).HasColumnName("ID");
+            entity.Property(e => e.Comment).HasMaxLength(4000);
+            entity.Property(e => e.Cost).HasColumnType("money");
+            entity.Property(e => e.Date).HasColumnType("datetime");
+            entity.Property(e => e.UserId).HasMaxLength(450);
+        });
+
         modelBuilder.Entity<Product>(entity =>
         {
             entity.Property(e => e.Id).HasColumnName("ID");
-            entity.Property(e => e.Description).HasMaxLength(1000);
-            entity.Property(e => e.Image).HasMaxLength(100);
+            entity.Property(e => e.Description).HasMaxLength(4000);
+            entity.Property(e => e.Image).HasMaxLength(500);
             entity.Property(e => e.Price).HasColumnType("money");
             entity.Property(e => e.ProductName).HasMaxLength(100);
+        });
+
+        modelBuilder.Entity<WaysToPay>(entity =>
+        {
+            entity.ToTable("WaysToPay");
+
+            entity.Property(e => e.UserId).HasMaxLength(450);
+            entity.Property(e => e.WayToPay).HasMaxLength(50);
+
+            
+        });
+
+        modelBuilder.Entity<Wishlist>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_Wishlist");
+
+            entity.Property(e => e.Id).HasColumnName("ID");
+            entity.Property(e => e.UserId).HasMaxLength(450);
+
+            entity.HasOne(d => d.Product).WithMany(p => p.Wishlists)
+                .HasForeignKey(d => d.ProductId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Wishlist_Products");
+
+            entity.HasOne(d => d.User).WithMany(p => p.Wishlists)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Wishlist_AspNetUsers");
         });
 
         OnModelCreatingPartial(modelBuilder);

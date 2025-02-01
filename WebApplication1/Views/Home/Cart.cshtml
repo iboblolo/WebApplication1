@@ -1,0 +1,242 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using WebApplication1.DbModels
+@using WebApplication1.ViewModels;
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+
+
+@{
+    ViewData["Title"] = "Cart Page";
+    Console.WriteLine(Model.ToString());
+    decimal Summ = 0;
+}
+<script>
+    function CountInc(id) {
+        var inc = document.getElementById("count_" + id);
+        var number = inc.innerHTML;
+        number++;
+
+        var priceP = document.getElementById("price_" + id);
+        var str = priceP.innerHTML;
+        var price = Number(parseFloat(str.replace(',', '.')));
+
+        var SummH = document.getElementById("Summ");
+        str = SummH.innerHTML;
+        var Summ = Number(parseFloat(str.replace(',', '.')));
+
+        console.log(Summ)
+        console.log(price)
+        Summ = Summ + price;
+        Summ = Summ.toFixed(4);
+
+        SummH.innerHTML = Summ;
+        inc.innerHTML = number;
+        var json = {
+            id: id
+        };
+        $.ajax({
+            type: "POST",
+            url: "/Home/CountInc",
+            dataType: "json",
+            data: { "json": JSON.stringify(json) },
+            async: true,
+            success: function (msg) {
+                ServiceSucceeded(msg);
+            },
+            error: function () {
+                return "error";
+            }
+        });
+    }
+    function CountDec(id) {
+        var dec = document.getElementById("count_" + id);
+        var number = dec.innerHTML;
+        number--;
+        var priceP = document.getElementById("price_" + id);
+        var str = priceP.innerHTML;
+        var price = Number(parseFloat(str.replace(',', '.')));
+
+        var SummH = document.getElementById("Summ");
+        str = SummH.innerHTML;
+        var Summ = Number(parseFloat(str.replace(',', '.')));
+
+        console.log(Summ)
+        console.log(price)
+        Summ = Summ - price;
+        Summ = Summ.toFixed(4);
+
+        SummH.innerHTML = Summ;
+        if (number == 0) {
+            var parent = document.getElementById("cartList");
+            var child = document.getElementById("item_" + id);
+            parent.removeChild(child);
+            var json = {
+                id: id,
+            };
+            $.ajax({
+                type: "POST",
+                url: "/Home/CartDelete",
+                dataType: "json",
+                data: { "json": JSON.stringify(json) },
+                async: true,
+                success: function (msg) {
+                    ServiceSucceeded(msg);
+                },
+                error: function () {
+                    return "error";
+                }
+            });
+            alert("Товар был удалён, так как его колисчтво в корзине 0");
+        }
+        else {
+            dec.innerHTML = number;
+            var json = {
+                id: id,
+            };
+            $.ajax({
+                type: "POST",
+                url: "/Home/CountDec",
+                dataType: "json",
+                data: { "json": JSON.stringify(json) },
+                async: true,
+                success: function (msg) {
+                    ServiceSucceeded(msg);
+                },
+                error: function () {
+                    return "error";
+                }
+            });
+        }
+    }
+    function CartDelete(id) {
+        var del = document.getElementById("count_" + id);
+        var count = Number(del.innerHTML);
+
+        var SummH = document.getElementById("Summ");
+        var str = SummH.innerHTML;
+        var Summ = Number(parseFloat(str.replace(',', '.')));
+
+        var priceP = document.getElementById("price_" + id);
+        str = priceP.innerHTML;
+        var price = Number(parseFloat(str.replace(',', '.')));
+
+        Summ = Summ - price * count
+        Summ = Summ.toFixed(4)
+        SummH.innerHTML = Summ;
+
+        var parent = document.getElementById("cartList");
+        var child = document.getElementById("item_" + id);
+        parent.removeChild(child);
+
+        var json = {
+            id: id,
+        };
+        $.ajax({
+            type: "POST",
+            url: "/Home/CartDelete",
+            dataType: "json",
+            data: { "json": JSON.stringify(json) },
+            async: true,
+            success: function (msg) {
+                ServiceSucceeded(msg);
+            },
+            error: function () {
+                return "error";
+            }
+        });
+        alert("Товар был удалён из корзины");
+    }
+    function AddOrder() {
+        var text = document.getElementById('orderComment');
+        var comm = text.value;
+        var json = {
+            comm: comm
+        };
+        alert("Ваш заказ был добавлен в базу");
+
+        var SummH = document.getElementById("Summ");
+        SummH.innerHTML = 0;
+
+        $.ajax({
+            type: "POST",
+            url: "/Home/AddOrder",
+            dataType: "json",
+            data: { "json": JSON.stringify(json) },
+            async: true,
+            success: function (msg) {
+                ServiceSucceeded(msg);
+            },
+            error: function () {
+                return "error";
+            }
+        });
+
+        var parent = document.getElementById("cartList");
+        var child = document.getElementsByClass("cartItems");
+        parent.removeChild(child);
+
+        
+    }
+</script>
+<div id ="cartList" class="text-center">
+    <h1 class="display-4">Ваша корзина</h1>
+    
+    @foreach (CartItem item in Model.CartItems)
+    {
+            <div id ="item_@item.CartID" class="container" style="display: flex; border: solid black; margin-top: 10px">
+                <div style=" border-right: 3px solid;">
+                    <img src="@item.Image" alt="Alternate Text"
+                         width=200px height=200px />
+                </div>
+                <div>
+                    <p align="left" style="margin-left: 15px; margin-right: 15px">Name: @item.ProductName</p>
+                    <p align="left" style="margin-left: 15px; margin-right: 15px">Price: <b id ="price_@item.CartID">@item.Price</b></p>
+                    <p align="left" style="margin-left: 15px; margin-right: 15px">Всего: <b>@(item.Price * @item.Count)</b></p>
+                </div>
+                <div style="margin-left: auto; display: block; justify-content: center; align-content: center">
+                    <button style="width: 50px; height: 50px;" type="button" name="@item.ProductName" onclick="CountInc('@item.CartID')">
+                        +
+                    </button>
+                    <p id="count_@item.CartID">
+                        @item.Count
+                    </p>
+                    <button style="width: 50px; height: 50px;" type="button" name="@item.ProductName" onclick="CountDec('@item.CartID')">
+                        -
+                    </button>
+                    <br>
+                    <button style="width: 250px; height: 50px;" type="button" name="@item.ProductName" onclick="CartDelete('@item.CartID')">
+                        Удалить из корзины
+                    </button>
+                </div>
+            </div>
+        
+        Summ += item.Price * item.Count;
+    }
+    <h2>Заказ на сумму <b id="Summ">@Summ</b> рублей</h2>
+    <br />
+    <h2>Выберите адрес доставки:</h2>
+    <select>
+        @foreach(string item in Model.Addresses)
+        {
+            <option>@item</option>
+        }
+    </select>
+    <br />
+    <h2>Выберите способ оплаты:</h2>
+    <select>
+        @foreach (string item in Model.WaysToPay)
+        {
+            <option>@item</option>
+        }
+    </select>
+    <br />
+    <p>Комментарий к заказу:</p>
+
+    <textarea id = "orderComment" rows="5" cols="50">
+
+    </textarea>
+    <br />
+    <button style="width: 250px; height: 50px;" type="button" onclick="AddOrder()">
+        Оформить заказ
+    </button>
+</div>

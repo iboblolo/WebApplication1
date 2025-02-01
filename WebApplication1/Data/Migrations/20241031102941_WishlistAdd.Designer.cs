@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebApplication1.Data;
 
@@ -11,9 +12,11 @@ using WebApplication1.Data;
 namespace WebApplication1.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241031102941_WishlistAdd")]
+    partial class WishlistAdd
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -425,9 +428,6 @@ namespace WebApplication1.Data.Migrations
                     b.Property<int>("Count")
                         .HasColumnType("int");
 
-                    b.Property<bool>("IsOrdered")
-                        .HasColumnType("bit");
-
                     b.Property<int>("ProductId")
                         .HasColumnType("int");
 
@@ -492,7 +492,7 @@ namespace WebApplication1.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Wishlists");
+                    b.ToTable("Wishlist");
                 });
 
             modelBuilder.Entity("AspNetRoleAspNetUser", b =>

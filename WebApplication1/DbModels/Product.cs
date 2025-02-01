@@ -14,4 +14,8 @@ public partial class Product
     public string Description { get; set; } = null!;
 
     public string? Image { get; set; }
+
+    public virtual ICollection<Cart> Carts { get; set; } = new List<Cart>();
+
+    public virtual ICollection<Wishlist> Wishlists { get; set; } = new List<Wishlist>();
 }

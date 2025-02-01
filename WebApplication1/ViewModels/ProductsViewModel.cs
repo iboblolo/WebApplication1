@@ -3,6 +3,6 @@ namespace WebApplication1.ViewModels
 {
     public class ProductsViewModel
     {
-        public IEnumerable<Product> Products = new List<Product>();
+        public List<Product> Products;
     }
 }

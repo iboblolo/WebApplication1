@@ -3,32 +3,84 @@
 @using WebApplication1.ViewModels;
 @inject SignInManager<IdentityUser> SignInManager
 @inject UserManager<IdentityUser> UserManager
-@Model ProductsViewModel;
+
+
 @{
     ViewData["Title"] = "Home Page";
-    
+    Console.WriteLine(Model.ToString());
 }
+<script>
+    function AddingToCart(id, name) {
+        alert("Товар был добавлен в корзину, если вы авторизированы");
+        
+        var json = { id: id ,
+                     name : name};
+        $.ajax({
+            type: "POST",
+            url: "/Home/AddingToCart",
+            dataType: "json",
+            data: { "json": JSON.stringify(json) },
+            async: true,
+            success: function (msg) {
+                ServiceSucceeded(msg);
+            },
+            error: function () {
+                return "error";
+            }
+        });
+    }
+    function AddingToWishlist(id) {
+        alert("Товар был добавлен в желаемое, если вы авторизированы");
 
+        var json = {
+            id: id
+        };
+        $.ajax({
+            type: "POST",
+            url: "/Home/AddingToWishlist",
+            dataType: "json",
+            data: { "json": JSON.stringify(json) },
+            async: true,
+            success: function (msg) {
+                ServiceSucceeded(msg);
+            },
+            error: function () {
+                return "error";
+            }
+        });
+    }
+</script>
 <div class="text-center">
     <h1 class="display-4">Магазин КомпКо</h1>
     @if (SignInManager.IsSignedIn(User))
     {
-        <p>Добро пожаловать в магазин компьютерных комплектующих КомпКо @User.Identity?.Name!</p>
+        <h2>Добро пожаловать в магазин компьютерных комплектующих КомпКо @User.Identity?.Name!</h2>
     }
-    else
-    {
-        <p>Добро пожаловать в магазин компьютерных комплектующих КомпКо</p>
-    }
+    <form asp-controller="Home" asp-action="Index">
+        <p>
+            <input type="text" name="search" />
+            <input type="submit" value="Поиск" />
+        </p>
+    </form>
     @foreach(Product prod in Model.Products)
     {
-        <div class="container" style="display: flex; border: solid black">
-            <div>
-                <img style=" border-right: 3px solid;" src="@prod.Image" alt="Alternate Text"
+        <div class="container" style="display: flex; border: solid black; margin-top: 10px">
+            <div style=" border-right: 3px solid;">
+                <img  src="@prod.Image" alt="Alternate Text"
                      width=200px height=200px />
             </div>
             <div>
-                <p align="left" style="">Name: @prod.ProductName Price: @prod.Price</p>
-                <p align="justify" style=""> @prod.Description</p>
+                <p align="left" style="margin-left: 15px; margin-right: 15px">Name: @prod.ProductName Price: @prod.Price</p>
+                <p align="justify" style="margin-left: 15px; margin-right: 15px"> @prod.Description</p>
+            </div>
+            <div style="margin-left: auto; display: block; justify-content: space-between; align-content: center">
+                <button style="width: 200px; height: 50px;" type="button" name="@prod.ProductName" value="@prod.Id" onclick="AddingToWishlist('@prod.Id')">
+                    Добавить в желаемое
+                </button>
+                <br />
+                <button style="margin-top: 10px;width: 200px; height: 50px;" type="button" name="@prod.ProductName" value="@prod.Id" onclick="AddingToCart('@prod.Id', '@User.Identity?.Name')">
+                    Добавить в корзину
+                </button>
             </div>
         </div>
     }

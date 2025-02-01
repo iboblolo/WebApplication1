@@ -1,10 +1,9 @@
-﻿using Microsoft.AspNetCore.Identity;
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace WebApplication1.DbModels;
 
-public partial class AspNetUser : IdentityUser
+public partial class AspNetUser
 {
     public string Id { get; set; } = null!;
 
@@ -41,6 +40,10 @@ public partial class AspNetUser : IdentityUser
     public virtual ICollection<AspNetUserLogin> AspNetUserLogins { get; set; } = new List<AspNetUserLogin>();
 
     public virtual ICollection<AspNetUserToken> AspNetUserTokens { get; set; } = new List<AspNetUserToken>();
+
+    public virtual ICollection<Cart> Carts { get; set; } = new List<Cart>();
+
+    public virtual ICollection<Wishlist> Wishlists { get; set; } = new List<Wishlist>();
 
     public virtual ICollection<AspNetRole> Roles { get; set; } = new List<AspNetRole>();
 }

@@ -1,0 +1,71 @@
+﻿@page
+@model AddressesModel
+@{
+    ViewData["Title"] = "Адреса доставки";
+    ViewData["ActivePage"] = ManageNavPages.Addresses;
+}
+<script>
+function DeleteAddress(id) {
+
+        var parent = document.getElementById("container");
+        var child = document.getElementById(id);
+        parent.removeChild(child);
+
+        var comm = id;
+    console.log(comm);
+        var json = {
+            comm: comm,
+        };
+
+        $.ajax({
+            type: "POST",
+            url: "/Home/AddressDelete",
+            dataType: "json",
+            data: { "json": JSON.stringify(json) },
+            async: true,
+            success: function (msg) {
+                ServiceSucceeded(msg);
+            },
+            error: function () {
+                return "error";
+            }
+        });
+        alert("Адрес удалён");
+    }
+</script>
+<h3>@ViewData["Title"]</h3>
+<div class="row">
+    <div class="col-md-6">
+        <form id="address-form" method="post">
+            <div asp-validation-summary="All" class="text-danger" role="alert"></div>
+
+             <div class="form-floating mb-3">
+                <input asp-for="Input.NewAddress" class="form-control" autocomplete="email" aria-required="true" placeholder="Введите вашу новую почту." />
+                <label asp-for="Input.NewAddress" class="form-label"></label>
+                <span asp-validation-for="Input.NewAddress" class="text-danger"></span>
+            </div>
+            <button id="add-address-button" type="submit" asp-page-handler="AddAddress" class="w-100 btn btn-lg btn-primary">Добавить адресс</button>
+        </form> 
+        <h3>Добавленные адреса:</h3>
+        <div id="container">
+            @foreach (string item in Model.Addresses)
+            {
+
+                <div id = "@item" class="container" style="display: flex; border: solid black; margin-top: 10px">
+                    <div>
+                        <p align="left" style="margin-left: 15px; margin-right: 15px">Адрес: <b>@(item)</b></p>
+                    </div>
+                    <button style="width: 70px; height: 25px; margin-top: auto; margin-bottom: auto" type="button"
+                            onclick="DeleteAddress('@item')">
+                        Удалить
+                    </button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,36 @@
+﻿@page
+@using WebApplication1.Models
+@model OrdersModel
+@{
+    ViewData["Title"] = "Заказы";
+    ViewData["ActivePage"] = ManageNavPages.Orders;
+}
+<h3>@ViewData["Title"]</h3>
+<div id="cartList" class="text-center">
+
+    @foreach (OrderItem item in Model.Orders)
+    {
+
+        <div class="container" style="display: flex; border: solid black; margin-top: 10px">
+            <div>
+                <p align="left" style="margin-left: 15px; margin-right: 15px">Дата заказа: <b>@(item.Date)</b></p>
+            </div>
+            <div>
+                <p align="left" style="margin-left: 15px; margin-right: 15px">Статус: <b>Выполняется</b></p>
+            </div>
+            <div>
+                <p align="left" style="margin-left: 15px; margin-right: 15px">Всего: <b>@(item.Cost)</b></p>
+            </div>
+            <div style="margin-left: auto; display: block; justify-content: center; align-content: center">
+                <p>Комментарий к заказу: @item.Comment</p>
+            </div>
+        </div>
+
+        
+    }
+
+</div>
+@section Scripts {
+
+    <partial name="_ValidationScriptsPartial" />
+}

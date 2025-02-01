@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebApplication1.Data;
 
@@ -11,13 +12,15 @@ using WebApplication1.Data;
 namespace WebApplication1.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241029171040_MigrCart")]
+    partial class MigrCart
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.10")
+                .HasAnnotation("ProductVersion", "8.0.8")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -425,9 +428,6 @@ namespace WebApplication1.Data.Migrations
                     b.Property<int>("Count")
                         .HasColumnType("int");
 
-                    b.Property<bool>("IsOrdered")
-                        .HasColumnType("bit");
-
                     b.Property<int>("ProductId")
                         .HasColumnType("int");
 
@@ -469,30 +469,6 @@ namespace WebApplication1.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Products");
-                });
-
-            modelBuilder.Entity("WebApplication1.DbModels.Wishlist", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("ProductId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProductId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Wishlists");
                 });
 
             modelBuilder.Entity("AspNetRoleAspNetUser", b =>
@@ -624,25 +600,6 @@ namespace WebApplication1.Data.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("WebApplication1.DbModels.Wishlist", b =>
-                {
-                    b.HasOne("WebApplication1.DbModels.Product", "Product")
-                        .WithMany("Wishlists")
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("WebApplication1.DbModels.AspNetUser", "User")
-                        .WithMany("Wishlists")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Product");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("WebApplication1.DbModels.AspNetRole", b =>
                 {
                     b.Navigation("AspNetRoleClaims");
@@ -657,15 +614,11 @@ namespace WebApplication1.Data.Migrations
                     b.Navigation("AspNetUserTokens");
 
                     b.Navigation("Carts");
-
-                    b.Navigation("Wishlists");
                 });
 
             modelBuilder.Entity("WebApplication1.DbModels.Product", b =>
                 {
                     b.Navigation("Carts");
-
-                    b.Navigation("Wishlists");
                 });
 #pragma warning restore 612, 618
         }

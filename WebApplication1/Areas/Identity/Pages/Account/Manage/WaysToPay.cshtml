@@ -1,0 +1,74 @@
+﻿@page
+@model WaysToPayModel
+@{
+    ViewData["Title"] = "Способы оплаты";
+    ViewData["ActivePage"] = ManageNavPages.WaysToPay;
+}
+<h3>@ViewData["Title"]</h3>
+
+<script>
+    function DeleteWay(id) {
+
+        var parent = document.getElementById("container");
+        var child = document.getElementById(id);
+        parent.removeChild(child);
+
+        var comm = id;
+        console.log(comm);
+        var json = {
+            comm: comm,
+        };
+
+        $.ajax({
+            type: "POST",
+            url: "/Home/WayDelete",
+            dataType: "json",
+            data: { "json": JSON.stringify(json) },
+            async: true,
+            success: function (msg) {
+                ServiceSucceeded(msg);
+            },
+            error: function () {
+                return "error";
+            }
+        });
+        alert("Адрес удалён");
+    }
+</script>
+<div class="row">
+    <div class="col-md-6">
+        <form id="address-form" method="post">
+            <div asp-validation-summary="All" class="text-danger" role="alert"></div>
+
+            <div class="form-floating mb-3">
+                <input asp-for="Input.NewWayToPay" class="form-control" autocomplete="email" aria-required="true" placeholder="Введите вашу новую почту." />
+                <label asp-for="Input.NewWayToPay" class="form-label"></label>
+                <span asp-validation-for="Input.NewWayToPay" class="text-danger"></span>
+            </div>
+            <button id="add-address-button" type="submit" asp-page-handler="AddWayToPay" class="w-100 btn btn-lg btn-primary">Добавить способ оплаты</button>
+        </form>
+        <h3>Добавленные способы оплаты:</h3>
+        <div id="container">
+            
+                @foreach (string item in Model.WaysToPay)
+                {
+
+                    <div id="@item" class="container" style="display: flex; border: solid black; margin-top: 10px">
+                        <div>
+                            <p align="left" style="margin-left: 15px; margin-right: 15px">Способ оплаты: <b>@(item)</b></p>
+                        </div>
+                        <button style="width: 70px; height: 25px; margin-top: auto; margin-bottom: auto" type="button"
+                            onclick="DeleteWay('@item')">
+                            Удалить
+                        </button>
+                    </div>
+                }
+            
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+
+    <partial name="_ValidationScriptsPartial" />
+}
